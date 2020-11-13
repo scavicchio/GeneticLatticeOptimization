@@ -1,0 +1,9 @@
+[submodule "Titan"]
+	path = Titan
+	url = https://github.com/scavicchio/Titan.git
+[submodule "lib3mf"]
+	path = lib3mf
+	url = https://github.com/3mfconsortium/lib3mf.git
+[submodule "lib/spectra"]
+	path = lib/spectra
+	url = https://github.com/yixuan/spectra.git
