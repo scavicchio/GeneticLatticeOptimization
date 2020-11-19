@@ -7,12 +7,10 @@ MESSAGE( STATUS "Starting build process")
 
 add_subdirectory(lib/Titan)
 add_subdirectory(lib/lib3mf)
-add_subdirectory(lib/spectra)
 
 include_directories(
         lib/Titan/include
         lib/lib3mf/Include
-        lib/spectra/include
         )
 
 message(WARNING ${COMPILE_DEFINITIONS})
@@ -23,3 +21,17 @@ set(SOURCES
 
 include_directories(src)
 
+# Enable OpenMP compiler options if available
+option (USE_OpenMP "Use OpenMP" ON)
+if (USE_OpenMP)
+        find_package(OpenMP)
+        if (OpenMP_CXX_FOUND)
+                SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        endif()
+endif()
+
+target_link_libraries(${PROJECT_NAME}
+	PRIVATE Titan
+	PRIVATE 3mf
+)
