@@ -31,7 +31,4 @@ if (USE_OpenMP)
         endif()
 endif()
 
-target_link_libraries(${PROJECT_NAME}
-	PRIVATE Titan
-	PRIVATE 3mf
-)
+
