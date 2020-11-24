@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.5.0)
 set(PROJECT_NAME "ANALYSIS")
-project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX)
+project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX CUDA) 
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -11,7 +11,7 @@ add_subdirectory(lib/Titan)
 
 include_directories(
         lib/Titan/include
-        lib/3mf
+        Inc/3mf
         )
 
 message(WARNING ${COMPILE_DEFINITIONS})

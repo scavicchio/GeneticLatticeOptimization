@@ -32,6 +32,7 @@ void printVersion(PWrapper wrapper) {
         std::cout << "+" << sBuildInfo;
     }
     std::cout << std::endl;
+    return;
 }
 
 void ShowObjectProperties(PObject object)
