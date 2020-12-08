@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 	sim.step(nSteps);
 	auto stop = std::chrono::high_resolution_clock::now(); 
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
-	// Runtime: 12271059 seconds for original Titan library
+	// Runtime: 12.271059 seconds for original Titan library
 	double d = duration.count()/(10*pow(10,5));
 	cout << "Runtime: " << d << " seconds\n";\
 	double speed = sim.springs.size()*(sim.time()/sim.gdt())/d;
@@ -134,51 +134,90 @@ int main(int argc, char *argv[]) {
 	cout << "Default dt: " << sim.gdt() << endl;
 	cout << "Sim time: " << sim.time() << endl;
 	std::cout << "All done, no runtime issues.\n";
-
+	exit(1);
     return 1;
 }
 
-/*
-void Simulator::write3MF(const QString &outputFile) {
-    QFileInfo info(outputFile);
-    QString output = info.path() + "/" + info.completeBaseName() + ".3mf";
+/* IMPROVEMENT NOTES}
 
-    Lib3MF::PWrapper wrapper = Lib3MF::CWrapper::loadLibrary();
-    
-    // adding material
-   /* Lib3MF::PBaseMaterialGroup materials = Lib3MF::CBaseMaterialGroup();
-    string name = "Titanium";
-    fRed = 1; fGreen = 1; fBlue = 1; fAlpha = 1;
-    Lib3MF::sColor color = FloatRGBAToColor(fRed,fGreen,fBlue,fAlpha)
-    materialsAddMaterial(name,color)
+// original NVPROF RESULTS
+- for 10 steps
+Runtime: 12.1983 seconds
+SPEED: 8.49954e+06 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+GPU activities:   82.66%  10.1740s     99722  102.02us  92.985us  1.9848ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   17.34%  2.13408s     99722  21.400us  18.028us  1.1473ms  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+
+- for 50 steps
+Runtime: 61.392 seconds
+SPEED: 8.44419e+06 springs/second.
+			Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   82.63%  49.8635s    500357  99.655us  97.999us  1.2790ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   17.37%  10.4787s    500356  20.942us  20.508us  841.48us  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
 
 
-    Lib3MF::PModel model = wrapper->CreateModel();
-    model->SetUnit(eModelUnit(5));
-    Lib3MF::PMeshObject meshObject = model->AddMeshObject();
-    meshObject->SetName("Beamlattice");
+// halfing block size to 256 
 
-    std::vector<sLib3MFPosition> vertices(sim->masses.size());
-    std::vector<sLib3MFBeam> beams;
-    std::vector<sLib3MFTriangle> triangles(0);
 
-    for (int m = 0; m < sim->masses.size(); m++) {
-        vertices[m] = fnCreateVertex(sim->masses[m]->origpos[0],sim->masses[m]->origpos[1],sim->masses[m]->origpos[2]);
-    }
-    for (int s = 0; s < sim->springs.size(); s++) {
-        if (sim->springs[s]->_k != 0) {
-            beams.push_back(fnCreateBeam(sim->springs[s]->_left->index,sim->springs[s]->_right->index,sim->springs[s]->_diam/2,sim->springs[s]->_diam/2,eBeamLatticeCapMode::Sphere,eBeamLatticeCapMode::Sphere));
-        }
-    } 
-   // Set beamlattice geometry and metadata
-    meshObject->SetGeometry(vertices, triangles);
-    
-    Lib3MF::PBeamLattice beamLattice = meshObject->BeamLattice();
-    beamLattice->SetBeams(beams);
-    beamLattice->SetMinLength(0.000001);
+- for 10 steps
+Runtime: 8.34788 seconds
+SPEED: 1.24169e+07 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+GPU activities:   74.22%  6.24244s     99606  62.671us  50.904us  1.3667ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   25.78%  2.16875s     99606  21.773us  17.800us  1.1468ms  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
 
-    model->AddBuildItem(meshObject.get(), wrapper->GetIdentityTransform());
 
-    Lib3MF::PWriter writer = model->QueryWriter("3mf");
-    writer->WriteToFile(output.toStdString());
-}*/
+- for 50 steps
+Runtime: 41.4957 seconds
+SPEED: 1.2495e+07 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   74.49%  30.7991s    499982  61.600us  57.971us  1.6370ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   25.51%  10.5492s    499982  21.099us  20.475us  950.86us  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+
+
+//  combining the if statements in sim.cu for spring_.k and spring_.compute check
+
+
+- for 50 steps
+Runtime: 41.3233 seconds
+SPEED: 1.25416e+07 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   74.25%  30.7318s    500768  61.369us  58.405us  1.3420ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   25.75%  10.6606s    500768  21.288us  20.610us  262.93us  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+      API calls:   80.87%  69.7262s   1074339  64.901us  4.0590us  349.08ms  cudaLaunchKernel
+                   18.74%  16.1591s      9296  1.7383ms  1.3630us  60.594ms  cudaDeviceSynchronize
+
+// by convertin the constraint if statements in the spring force to arithmatic
+
+- for 50 steps
+Runtime: 31.2904 seconds
+SPEED: 1.65756e+07 springs/second.
+           Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   66.50%  20.7522s    500365  41.474us  38.946us  1.2031ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   33.50%  10.4542s    500364  20.893us  20.289us  1.2605ms  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+      API calls:   84.68%  56.1559s   1109051  50.634us  4.1280us  262.87ms  cudaLaunchKernel
+                   14.82%  9.83075s     13635  720.99us  1.4930us  38.011ms  cudaDeviceSynchronize
+
+// one more line converted
+
+- for 50 steps
+Runtime: 31.7971 seconds
+SPEED: 1.63369e+07 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   66.36%  20.8438s    500927  41.610us  39.298us  1.2051ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   33.64%  10.5641s    500926  21.089us  20.545us  1.2961ms  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+      API calls:   77.05%  51.9536s   1108555  46.866us  4.0170us  263.25ms  cudaLaunchKernel
+                   21.40%  14.4279s     13573  1.0630ms  1.3530us  46.942ms  cudaDeviceSynchronize
+
+// one more line
+
+- for 50 steps
+Runtime: 31.7291 seconds
+SPEED: 1.63656e+07 springs/second.
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   66.38%  20.7533s    500735  41.445us  39.329us  1.3050ms  computeSpringForces(CUDA_SPRING**, int, double)
+                   33.62%  10.5124s    500734  20.994us  20.416us  1.1716ms  massForcesAndUpdate(CUDA_MASS**, Vec, CUDA_GLOBAL_CONSTRAINTS, int)
+      API calls:   79.32%  53.4157s   1109787  48.131us  4.0370us  262.94ms  cudaLaunchKernel
+                   19.09%  12.8539s     13727  936.39us  1.3720us  46.809ms  cudaDeviceSynchronize
+
+*/

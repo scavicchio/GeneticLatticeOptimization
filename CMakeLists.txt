@@ -3,7 +3,6 @@ set(PROJECT_NAME "ANALYSIS")
 project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX CUDA) 
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 MESSAGE( STATUS "Starting build process")
 
 add_subdirectory(lib/lib3mf)
