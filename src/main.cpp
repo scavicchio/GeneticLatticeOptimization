@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 	double dt = 0;	
 	double T = 0;
 	double k = 10000;
-	int nSteps = 10;
+	int nSteps = 100;
 	if (argc == 1) {
 		cerr << "OOPS: You need to provide the arguments for the input file, dt, and T!\n";
 	}

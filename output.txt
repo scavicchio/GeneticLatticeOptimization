@@ -1,0 +1,33 @@
+Starting performance analysis with:  dt: 0 T: 0
+TITAN simulation now has 125 masses and 1036 springs.
+Stepping 10 timesteps...
+Default dt: 0
+Starting simulation with 125 masses and 1036 springs.
+Sim time: 0
+Runtime: 6.05013 seconds
+SPEED: 1.71238e+07 springs/second.
+Default dt: 0.0001
+Sim time: 10.0001
+All done, no runtime issues.
+Starting performance analysis with:  dt: 0 T: 0
+TITAN simulation now has 125 masses and 1036 springs.
+Stepping 100 timesteps...
+Default dt: 0
+Starting simulation with 125 masses and 1036 springs.
+Sim time: 0
+Runtime: 60.8669 seconds
+SPEED: 1.70207e+07 springs/second.
+Default dt: 0.0001
+Sim time: 100
+All done, no runtime issues.
+Starting performance analysis with:  dt: 0 T: 0
+TITAN simulation now has 125 masses and 1036 springs.
+Stepping 100 timesteps...
+Default dt: 0
+Starting simulation with 125 masses and 1036 springs.
+Sim time: 0
+Runtime: 69.7735 seconds
+SPEED: 1.48482e+07 springs/second.
+Default dt: 0.0001
+Sim time: 100.001
+All done, no runtime issues.

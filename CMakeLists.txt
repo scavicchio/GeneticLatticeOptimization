@@ -37,5 +37,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC inc)
 
 target_link_libraries(${PROJECT_NAME}
 	PRIVATE Titan
-	PRIVATE 3mf
+	PRIVATE lib3mf
 )
